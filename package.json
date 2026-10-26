@@ -5,7 +5,12 @@
         "build": "vite build",
         "dev": "vite"
     },
+    "dependencies": {
+        "react": "^19.0",
+        "react-dom": "^19.0"
+    },
     "devDependencies": {
+        "@vitejs/plugin-react": "^4.3",
         "laravel-vite-plugin": "^1.2",
         "vite": "^6.0"
     }

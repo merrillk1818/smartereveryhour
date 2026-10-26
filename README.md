@@ -21,10 +21,33 @@ each one and turn the conversation into new topics for your curriculum.
 
 - PHP 8.3, Laravel 13
 - MySQL/MariaDB, Redis (cache/queue)
-- Vite for frontend assets
+- Vite + React for the AI chat UI
+- A standalone Next.js 15 app for the public landing page
 - Google Gemini API for the AI tutor
 - Web Push, Pushover, and Vonage SMS for notifications
 - Cloudflare Turnstile for bot protection on auth forms
+
+## Frontend architecture
+
+Most of the app is server-rendered Blade, with two deliberate exceptions:
+
+- **The AI chat / learn-session page** (`resources/js/components/`) is a React
+  component tree (`LearnChat` → `ChatPanel` + `SaveTopicPanel`), mounted into
+  the existing Vite build via `resources/js/learn-chat.jsx`. It owns the chat
+  transcript, loading states, and the "save as a new topic" form as real
+  component state instead of manual DOM manipulation.
+- **The public landing page** (`landing/`) is a separate, standalone Next.js 15
+  App Router project — its own `package.json` and build, run as its own small
+  Node service in production, with only the `/` path routed to it (everything
+  else stays on Laravel). It uses the Server/Client Component split: the
+  marketing content ships zero client JS, and only the mobile nav menu is a
+  Client Component.
+
+See [`docs/react-nextjs-frontend.md`](docs/react-nextjs-frontend.md) for the
+full reasoning and request-flow writeup. Note: this repo contains application
+code only (no deploy/infra files), so running `landing/` standalone just means
+`cd landing && npm install && npm run dev` — in production it'd sit behind a
+reverse proxy that routes `/` to it and everything else to Laravel.
 
 ## Setup
 

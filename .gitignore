@@ -9,4 +9,6 @@
 /storage/framework/views/*
 /storage/logs/*.log
 /bootstrap/cache/*.php
+landing/node_modules/
+landing/.next/
 .DS_Store
