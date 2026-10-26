@@ -1,0 +1,27 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    name: Deploy to production
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH and deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # Deploy directory name predates this repo's rename and is left
+            # as-is intentionally: Docker Compose derives volume names from
+            # the directory name, and the production database volume already
+            # lives under this name. Renaming the directory would silently
+            # start fresh, empty volumes on next deploy.
+            cd ~/smartereveryhour.com
+            git fetch origin main
+            git reset --hard origin/main
+            make deploy-app

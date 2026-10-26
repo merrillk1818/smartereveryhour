@@ -44,12 +44,26 @@ Most of the app is server-rendered Blade, with two deliberate exceptions:
   Client Component.
 
 See [`docs/react-nextjs-frontend.md`](docs/react-nextjs-frontend.md) for the
-full reasoning and request-flow writeup. Note: this repo contains application
-code only (no deploy/infra files), so running `landing/` standalone just means
-`cd landing && npm install && npm run dev` — in production it'd sit behind a
-reverse proxy that routes `/` to it and everything else to Laravel.
+full reasoning and request-flow writeup.
 
 ## Setup
+
+### Option A: Docker (recommended — matches production)
+
+```bash
+make setup      # creates storage/bootstrap-cache dirs, copies .env.example -> .env
+# edit .env with real credentials (see below)
+make up
+make first-run  # key:generate, migrate, vapid:generate, cache config/routes
+```
+
+This brings up nginx (`seh-nginx`), Laravel (`seh-laravel`), a queue worker,
+a scheduler, the Next.js landing app (`seh-landing`), MariaDB, and Redis —
+see `docker-compose.yml`. For local dev with hot file watching instead of a
+built image: `make dev`. Full production deployment steps (TLS, DNS, the
+GitHub Actions deploy workflow) are in [`DEPLOY.md`](DEPLOY.md).
+
+### Option B: Plain PHP
 
 ```bash
 composer install
@@ -57,20 +71,6 @@ npm install && npm run build
 
 cp .env.example .env
 php artisan key:generate
-```
-
-Edit `.env` and set at minimum:
-
-- Database credentials (`DB_*`)
-- `GEMINI_API_KEY` — from [Google AI Studio](https://aistudio.google.com/)
-- `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` — generate with `php artisan vapid:generate`
-- Whichever notification channel(s) you want: `PUSHOVER_APP_TOKEN`, or
-  `VONAGE_API_KEY` / `VONAGE_API_SECRET` / `VONAGE_FROM_NUMBER`
-- `TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` — from Cloudflare, if using Turnstile
-
-Then:
-
-```bash
 php artisan migrate
 php artisan serve
 ```
@@ -81,6 +81,15 @@ Run the queue worker and scheduler for notification delivery:
 php artisan queue:work redis --queue=notifications,default
 php artisan schedule:work
 ```
+
+### Required `.env` values
+
+- Database credentials (`DB_*`)
+- `GEMINI_API_KEY` — from [Google AI Studio](https://aistudio.google.com/)
+- `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` — generate with `php artisan vapid:generate`
+- Whichever notification channel(s) you want: `PUSHOVER_APP_TOKEN`, or
+  `VONAGE_API_KEY` / `VONAGE_API_SECRET` / `VONAGE_FROM_NUMBER`
+- `TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` — from Cloudflare, if using Turnstile
 
 ## License
 

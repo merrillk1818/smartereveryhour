@@ -1,10 +1,8 @@
 # React + Next.js in this project
 
-> **Note:** this public repo contains application code only — the deploy/infra
-> layer (docker-compose, nginx vhost configs, CI) lives in the private
-> production repo and isn't included here. The nginx/Docker details below
-> describe how it's wired up in production; treat them as the "how this would
-> be deployed" story rather than files present in this checkout.
+> This repo's `docker-compose.yml` and `nginx/conf.d/` are the real files this
+> runs from in production — the paths and service names referenced below
+> match what's actually in this checkout.
 
 This app was pure Laravel + Blade + a sprinkle of vanilla JS. Two pieces of frontend
 were rewritten to demonstrate React and Next.js, chosen deliberately for *where they
@@ -31,8 +29,8 @@ different problems, and this app has two different problems:
 
 ## 1. React: the learn/chat page
 
-**Where:** `laravel/resources/js/components/{LearnChat,ChatPanel,SaveTopicPanel}.jsx`,
-mounted by `laravel/resources/js/learn-chat.jsx`, into `resources/views/learn/session.blade.php`.
+**Where:** `resources/js/components/{LearnChat,ChatPanel,SaveTopicPanel}.jsx`,
+mounted by `resources/js/learn-chat.jsx`, into `resources/views/learn/session.blade.php`.
 
 **What it replaced:** ~120 lines of imperative vanilla JS — manual DOM node creation
 for every chat bubble, manually toggling `style.display` on the save-topic panel,
@@ -87,7 +85,7 @@ replaced what was already client-side rendering.
 **Where:** new top-level `landing/` directory — a complete, independent Next.js
 15 App Router project with its own `package.json`, `Dockerfile`, and `next.config.js`.
 
-**What it replaced:** `laravel/resources/views/welcome.blade.php` is left in place
+**What it replaced:** `resources/views/welcome.blade.php` is left in place
 untouched (so nothing was torn down / the route still exists if ever needed
 directly), but public traffic to `/` no longer reaches it — nginx now sends
 that one path to the new service instead.
